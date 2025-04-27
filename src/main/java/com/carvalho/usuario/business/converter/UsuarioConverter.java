@@ -46,8 +46,8 @@ public class UsuarioConverter {
 
     public Telefone paraTelefone(TelefoneDTO telefoneDTO){
         return Telefone.builder()
-                .ddd(telefoneDTO.getDdd())
                 .numero(telefoneDTO.getNumero())
+                .ddd(telefoneDTO.getDdd())
                 .build();
     }
 
@@ -83,8 +83,8 @@ public class UsuarioConverter {
 
     public TelefoneDTO paraTelefoneDTO(Telefone telefones){
         return TelefoneDTO.builder()
-                .ddd(telefones.getDdd())
                 .numero(telefones.getNumero())
+                .ddd(telefones.getDdd())
                 .build();
     }
 }
