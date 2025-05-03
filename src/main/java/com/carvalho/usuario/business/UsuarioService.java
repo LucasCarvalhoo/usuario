@@ -31,10 +31,10 @@ public class UsuarioService {
         try{
             boolean existe = verificaEmailExistente(email);
             if(existe){
-                throw new ConflictException("Email já cadastrado" + email);
+                throw new ConflictException("Email já cadastrado " + email);
             }
         } catch (ConflictException e){
-            throw new ConflictException("Email já cadastrado" + e.getCause());
+            throw new ConflictException("Email já cadastrado " + e.getCause());
         }
     }
 
@@ -52,10 +52,11 @@ public class UsuarioService {
 
  public UsuarioDTO atualizaDadosUsuario(UsuarioDTO usuarioDTO, String token){
         String email = jwtUtil.extrairEmailToken(token.substring(7));
+        usuarioDTO.setSenha(usuarioDTO.getSenha() != null ? passwordEncoder.encode(usuarioDTO.getSenha()) : null);
+
         Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Email não localizado"));
 
         Usuario usuario = usuarioConverter.updateUsuario(usuarioDTO, usuarioEntity);
-        usuario.setSenha(passwordEncoder.encode(usuario.getPassword()));
 
         return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
  }
