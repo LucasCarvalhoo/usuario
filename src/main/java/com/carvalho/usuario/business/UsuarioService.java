@@ -20,37 +20,37 @@ public class UsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO){
+    public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO) {
         emailExiste(usuarioDTO.getEmail());
         usuarioDTO.setSenha(passwordEncoder.encode(usuarioDTO.getSenha()));
         Usuario usuario = usuarioConverter.paraUsuario(usuarioDTO);
         return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
     }
 
-    public void emailExiste(String email){
-        try{
+    public void emailExiste(String email) {
+        try {
             boolean existe = verificaEmailExistente(email);
-            if(existe){
+            if (existe) {
                 throw new ConflictException("Email já cadastrado " + email);
             }
-        } catch (ConflictException e){
+        } catch (ConflictException e) {
             throw new ConflictException("Email já cadastrado " + e.getCause());
         }
     }
 
-    public boolean verificaEmailExistente(String email){
+    public boolean verificaEmailExistente(String email) {
         return usuarioRepository.existsByEmail(email);
     }
 
-    public Usuario buscarUsuarioPorEmail(String email){
+    public Usuario buscarUsuarioPorEmail(String email) {
         return usuarioRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Email não encontrado" + email));
     }
 
-    public void deletaUsuarioPorEmail(String email){
+    public void deletaUsuarioPorEmail(String email) {
         usuarioRepository.deleteByEmail(email);
     }
 
- public UsuarioDTO atualizaDadosUsuario(UsuarioDTO usuarioDTO, String token){
+    public UsuarioDTO atualizaDadosUsuario(UsuarioDTO usuarioDTO, String token) {
         String email = jwtUtil.extrairEmailToken(token.substring(7));
         usuarioDTO.setSenha(usuarioDTO.getSenha() != null ? passwordEncoder.encode(usuarioDTO.getSenha()) : null);
 
@@ -59,5 +59,5 @@ public class UsuarioService {
         Usuario usuario = usuarioConverter.updateUsuario(usuarioDTO, usuarioEntity);
 
         return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
- }
+    }
 }
