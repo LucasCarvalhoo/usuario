@@ -67,6 +67,7 @@ public class UsuarioConverter {
 
     public EnderecoDTO paraEnderecoDTO(Endereco endereco){
         return EnderecoDTO.builder()
+                .id(endereco.getId())
                 .rua(endereco.getRua())
                 .bairro(endereco.getBairro())
                 .numero(endereco.getNumero())
@@ -81,10 +82,11 @@ public class UsuarioConverter {
         return telefones.stream().map(this::paraTelefoneDTO).toList();
     }
 
-    public TelefoneDTO paraTelefoneDTO(Telefone telefones){
+    public TelefoneDTO paraTelefoneDTO(Telefone telefone){
         return TelefoneDTO.builder()
-                .numero(telefones.getNumero())
-                .ddd(telefones.getDdd())
+                .id(telefone.getId())
+                .numero(telefone.getNumero())
+                .ddd(telefone.getDdd())
                 .build();
     }
 
@@ -98,4 +100,5 @@ public class UsuarioConverter {
                 .telefones(usuario.getTelefones())
                 .build();
     }
+
 }
