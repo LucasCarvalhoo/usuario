@@ -1,7 +1,10 @@
 package com.carvalho.usuario.controller;
 
 import com.carvalho.usuario.business.UsuarioService;
+import com.carvalho.usuario.business.dto.EnderecoDTO;
+import com.carvalho.usuario.business.dto.TelefoneDTO;
 import com.carvalho.usuario.business.dto.UsuarioDTO;
+import com.carvalho.usuario.infrastructure.entity.AuthResponse;
 import com.carvalho.usuario.infrastructure.entity.Usuario;
 import com.carvalho.usuario.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,16 +30,17 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public ResponseEntity<Usuario> buscaUsuarioPorEmail(@RequestParam("email") String email){
+    public ResponseEntity<UsuarioDTO> buscaUsuarioPorEmail(@RequestParam("email") String email){
         return ResponseEntity.ok(usuarioService.buscarUsuarioPorEmail(email));
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody UsuarioDTO usuarioDTO){
+    public ResponseEntity<AuthResponse> login(@RequestBody UsuarioDTO usuarioDTO){
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(usuarioDTO.getEmail(), usuarioDTO.getSenha())
         );
-        return jwtUtil.generateToken(authentication.getName());
+        String token = jwtUtil.generateToken(authentication.getName());
+        return ResponseEntity.ok(new AuthResponse("Bearer " + token));
     }
 
     @DeleteMapping("/{email}")
@@ -49,5 +53,17 @@ public class UsuarioController {
     public ResponseEntity<UsuarioDTO> atualizaDadoUsuario(@RequestBody UsuarioDTO usuarioDTO,
                                                           @RequestHeader("Authorization") String token){
         return ResponseEntity.ok(usuarioService.atualizaDadosUsuario(usuarioDTO, token));
+    }
+
+    @PutMapping("/telefone")
+    public ResponseEntity<TelefoneDTO> atualizaDadoTelefone(@RequestBody TelefoneDTO telefoneDTO,
+                                                            @RequestParam("id") Long id){
+        return ResponseEntity.ok(usuarioService.atualizaDadosTelefone(telefoneDTO, id));
+    }
+
+    @PutMapping("/endereco")
+    public ResponseEntity<EnderecoDTO> atualizaDadoEndereco(@RequestBody EnderecoDTO enderecoDTO,
+                                                            @RequestParam("id") Long id){
+        return ResponseEntity.ok(usuarioService.atualizaDadosEndereco(enderecoDTO, id));
     }
 }
