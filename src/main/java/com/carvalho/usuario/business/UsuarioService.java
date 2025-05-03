@@ -6,6 +6,7 @@ import com.carvalho.usuario.infrastructure.entity.Usuario;
 import com.carvalho.usuario.infrastructure.exceptions.ConflictException;
 import com.carvalho.usuario.infrastructure.exceptions.ResourceNotFoundException;
 import com.carvalho.usuario.infrastructure.repository.UsuarioRepository;
+import com.carvalho.usuario.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioConverter usuarioConverter;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO){
         emailExiste(usuarioDTO.getEmail());
@@ -29,10 +31,10 @@ public class UsuarioService {
         try{
             boolean existe = verificaEmailExistente(email);
             if(existe){
-                throw new ConflictException("Email já cadastrado" + email);
+                throw new ConflictException("Email já cadastrado " + email);
             }
         } catch (ConflictException e){
-            throw new ConflictException("Email já cadastrado" + e.getCause());
+            throw new ConflictException("Email já cadastrado " + e.getCause());
         }
     }
 
@@ -47,4 +49,15 @@ public class UsuarioService {
     public void deletaUsuarioPorEmail(String email){
         usuarioRepository.deleteByEmail(email);
     }
+
+ public UsuarioDTO atualizaDadosUsuario(UsuarioDTO usuarioDTO, String token){
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+        usuarioDTO.setSenha(usuarioDTO.getSenha() != null ? passwordEncoder.encode(usuarioDTO.getSenha()) : null);
+
+        Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Email não localizado"));
+
+        Usuario usuario = usuarioConverter.updateUsuario(usuarioDTO, usuarioEntity);
+
+        return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
+ }
 }
